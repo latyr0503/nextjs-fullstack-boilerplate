@@ -1,0 +1,41 @@
+# ==============================================================================
+# Docker Compose : Orchestration et lancement simplifié de vos conteneurs
+# ==============================================================================
+# Pourquoi Docker Compose ?
+# Au lieu de taper en ligne de commande :
+# "docker run -d -p 3000:3000 --name mon-app --restart unless-stopped mon-image"
+# Compose regroupe toute la configuration dans ce fichier YAML.
+# Une seule commande suffit : "docker compose up -d"
+# ==============================================================================
+
+services:
+  web:
+    # Nom du conteneur visible avec 'docker ps'
+    container_name: boilerplate-web
+
+    # Construction de l'image à partir de notre Dockerfile local
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    # Redémarrage automatique en cas de plantage ou de redémarrage de la machine
+    restart: unless-stopped
+
+    # Redirection de port : "PORT_MACHINE_HOTE : PORT_DANS_LE_CONTENEUR"
+    # Vous pouvez accéder à votre site sur http://localhost:3000
+    ports:
+      - "3000:3000"
+
+    # Variables d'environnement injectées dans le conteneur
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+
+    # Vérification de santé (Healthcheck) : Docker vérifie que le serveur répond bien
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:3000/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
